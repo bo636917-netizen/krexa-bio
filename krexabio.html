@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krexa PvP | Minecraft Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Pixel Fonts (Press Start 2P & Silkscreen) -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            image-rendering: pixelated;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Press Start 2P', 'Padauk', monospace;
+            background-color: #121212;
+            color: #ffffff;
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)),
+                radial-gradient(#2d2d2d 2px, transparent 2px);
+            background-size: 100% 100%, 16px 16px;
+        }
+
+        /* Minecraft Pixel Dirt/Bedrock Texture Background Pattern */
+        .mc-bg-pattern {
+            background-color: #1a1614;
+            background-image: 
+                repeating-linear-gradient(45deg, #26201c 0, #26201c 10px, #1a1614 0, #1a1614 20px),
+                linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0.95));
+        }
+
+        /* Minecraft Authentic Button Style */
+        .mc-button {
+            position: relative;
+            background-color: #707070;
+            border-top: 4px solid #a8a8a8;
+            border-left: 4px solid #a8a8a8;
+            border-right: 4px solid #383838;
+            border-bottom: 4px solid #383838;
+            box-shadow: inset -4px -4px 0px 0px #242424, inset 4px 4px 0px 0px #5c5c5c;
+            text-shadow: 2px 2px 0px #202020;
+            transition: all 0.05s ease;
+            cursor: pointer;
+        }
+
+        .mc-button:hover {
+            background-color: #7d81a8;
+            border-top-color: #b8bce0;
+            border-left-color: #b8bce0;
+            border-right-color: #434661;
+            border-bottom-color: #434661;
+            box-shadow: inset -4px -4px 0px 0px #282a3d, inset 4px 4px 0px 0px #676a8f;
+            color: #ffffa0;
+            text-shadow: 2px 2px 0px #2b2800;
+        }
+
+        .mc-button:active {
+            background-color: #4a4a4a;
+            border-top: 4px solid #242424;
+            border-left: 4px solid #242424;
+            border-right: 4px solid #a8a8a8;
+            border-bottom: 4px solid #a8a8a8;
+            box-shadow: inset -4px -4px 0px 0px #5c5c5c, inset 4px 4px 0px 0px #181818;
+            padding-top: 2px;
+        }
+
+        /* Minecraft Container / Dialog Panel */
+        .mc-panel {
+            background-color: #c6c6c6;
+            border-top: 4px solid #ffffff;
+            border-left: 4px solid #ffffff;
+            border-right: 4px solid #555555;
+            border-bottom: 4px solid #555555;
+            box-shadow: inset -4px -4px 0px 0px #373737, inset 4px 4px 0px 0px #dbdbdb, 0 12px 30px rgba(0,0,0,0.8);
+            color: #373737;
+        }
+
+        /* Minecraft Inventory Hotbar Slot Container */
+        .mc-slot-container {
+            background-color: #8b8b8b;
+            border-top: 3px solid #373737;
+            border-left: 3px solid #373737;
+            border-right: 3px solid #ffffff;
+            border-bottom: 3px solid #ffffff;
+            box-shadow: inset 3px 3px 0px 0px #202020;
+        }
+
+        /* Minecraft Font Title Shadow */
+        .mc-title {
+            color: #ffffff;
+            text-shadow: 4px 4px 0px #3f3f3f, 6px 6px 0px #000000;
+        }
+
+        .mc-subtitle {
+            color: #ffff55;
+            text-shadow: 2px 2px 0px #3f3f00;
+        }
+
+        /* Floating splash text animation */
+        @keyframes mc-splash {
+            0% { transform: scale(1) rotate(-5deg); }
+            50% { transform: scale(1.08) rotate(-5deg); }
+            100% { transform: scale(1) rotate(-5deg); }
+        }
+
+        .splash-text {
+            animation: mc-splash 0.8s infinite ease-in-out;
+            color: #ffff55;
+            text-shadow: 2px 2px 0px #3f3f00;
+            font-family: 'Silkscreen', monospace;
+        }
+
+        /* Custom Pixel Avatar Border */
+        .mc-avatar-frame {
+            border: 4px solid #ffffff;
+            outline: 4px solid #000000;
+            box-shadow: 0 0 0 8px #555555, 0 10px 20px rgba(0,0,0,0.9);
+        }
+    </style>
+</head>
+<body class="mc-bg-pattern min-h-screen flex flex-col justify-between items-center px-4 py-8 relative overflow-x-hidden">
+
+    <!-- Sound Control Toggle (Top Right) -->
+    <div class="absolute top-4 right-4 z-50">
+        <button id="soundToggle" onclick="toggleSound()" class="mc-button p-3 text-xs flex items-center gap-2 rounded-none text-white">
+            <i id="soundIcon" class="fa-solid fa-volume-high text-yellow-400"></i>
+            <span id="soundText" class="hidden sm:inline">SOUND: ON</span>
+        </button>
+    </div>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-md relative z-10 my-auto flex flex-col items-center">
+
+        <!-- Title Header -->
+        <header class="text-center mb-6 w-full flex flex-col items-center relative">
+            <h1 class="mc-title text-2xl sm:text-3xl font-extrabold tracking-wider mb-2 uppercase leading-tight">
+                KREXA PVP
+            </h1>
+            
+            <!-- Splash Text Tagline -->
+            <div class="splash-text text-xs sm:text-sm font-bold my-1 tracking-wide bg-black/40 px-3 py-1 border border-yellow-500/40">
+                ★ Best PvP Packs! ★
+            </div>
+        </header>
+
+        <!-- Profile Section Panel -->
+        <div class="mc-panel w-full p-5 mb-6 text-center flex flex-col items-center relative">
+            
+            <!-- Avatar Frame -->
+            <div class="relative my-2">
+                <div class="w-24 h-24 sm:w-28 sm:h-28 mc-avatar-frame bg-purple-700 flex items-center justify-center overflow-hidden">
+                    <!-- Red Character with Yellow Crown SVG Avatar -->
+                    <svg viewBox="0 0 500 500" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="500" height="500" fill="#6D28D9" />
+                        <path d="M 100 0 Q 180 250 100 500" stroke="#7C3AED" stroke-width="45" fill="none" opacity="0.7"/>
+                        <path d="M 400 0 Q 320 250 400 500" stroke="#7C3AED" stroke-width="45" fill="none" opacity="0.7"/>
+                        
+                        <g transform="translate(0, 20)">
+                            <!-- Body -->
+                            <path d="M 170 410 Q 250 380 330 410 L 340 500 L 160 500 Z" fill="#DC2626" stroke="#000000" stroke-width="20" stroke-linejoin="miter"/>
+                            <!-- Head -->
+                            <ellipse cx="250" cy="270" rx="145" ry="135" fill="#DC2626" stroke="#000000" stroke-width="20"/>
+                            <!-- Eyes -->
+                            <circle cx="170" cy="260" r="12" fill="#000000" />
+                            <circle cx="330" cy="240" r="12" fill="#000000" />
+                            <!-- Mouth -->
+                            <line x1="160" y1="305" x2="340" y2="285" stroke="#000000" stroke-width="20" stroke-linecap="square" />
+                            <!-- Crown -->
+                            <g transform="rotate(12, 280, 130)">
+                                <path d="M 220 140 L 210 75 L 250 110 L 290 60 L 330 110 L 370 75 L 360 140 Z" 
+                                      fill="#FACC15" stroke="#000000" stroke-width="16" stroke-linejoin="miter"/>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Username Subtitle -->
+            <h2 class="text-xs sm:text-sm font-bold text-gray-900 mt-2 tracking-wide uppercase">
+                [VIP] @krexapvppack
+            </h2>
+
+            <p class="text-[10px] sm:text-xs text-gray-800 mt-2 leading-relaxed font-sans font-bold bg-gray-300/80 p-2 border border-gray-500">
+                Minecraft PvP Texture Packs, FPS Boosts & Community Updates!
+            </p>
+        </div>
+
+        <!-- Links Buttons Container -->
+        <section class="w-full space-y-4">
+
+            <!-- 1. Telegram Channel Button -->
+            <a href="https://t.me/krexapvppack" onclick="handleLinkClick(event, 'telegram', 'krexapvppack')" 
+               class="mc-button w-full p-4 flex items-center justify-between group text-left">
+                <div class="flex items-center space-x-3">
+                    <div class="mc-slot-container p-2 text-cyan-300 flex items-center justify-center w-10 h-10">
+                        <i class="fa-brands fa-telegram text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs sm:text-sm font-bold text-white group-hover:text-yellow-300">
+                            TELEGRAM CHANNEL
+                        </div>
+                        <div class="text-[9px] text-gray-300 font-sans font-semibold mt-1">
+                            t.me/krexapvppack
+                        </div>
+                    </div>
+                </div>
+                <div class="text-yellow-400 group-hover:translate-x-1 transition-transform">
+                    <i class="fa-solid fa-play text-xs"></i>
+                </div>
+            </a>
+
+            <!-- 2. Discord Server Button -->
+            <a href="https://discord.gg/38VzDvKrm" onclick="handleLinkClick(event, 'discord', '38VzDvKrm')" 
+               class="mc-button w-full p-4 flex items-center justify-between group text-left">
+                <div class="flex items-center space-x-3">
+                    <div class="mc-slot-container p-2 text-indigo-300 flex items-center justify-center w-10 h-10">
+                        <i class="fa-brands fa-discord text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs sm:text-sm font-bold text-white group-hover:text-yellow-300">
+                            DISCORD SERVER
+                        </div>
+                        <div class="text-[9px] text-gray-300 font-sans font-semibold mt-1">
+                            discord.gg/38VzDvKrm
+                        </div>
+                    </div>
+                </div>
+                <div class="text-yellow-400 group-hover:translate-x-1 transition-transform">
+                    <i class="fa-solid fa-play text-xs"></i>
+                </div>
+            </a>
+
+            <!-- 3. Share Page Button -->
+            <button onclick="copyLink(event)" class="mc-button w-full p-3 flex items-center justify-center space-x-2 text-xs text-yellow-300">
+                <i class="fa-solid fa-share-nodes"></i>
+                <span>SHARE SERVER LINK</span>
+            </button>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-4 relative z-10 mt-6">
+        <p class="text-[9px] text-gray-400 font-sans font-bold">
+            MINECRAFT COMMUNITY LINK HUB • KREXA PVP
+        </p>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 mc-panel px-4 py-2 text-xs font-bold text-gray-900 opacity-0 pointer-events-none transition-opacity duration-300 z-50 flex items-center gap-2">
+        <i class="fa-solid fa-check text-green-700"></i>
+        <span id="toastText">COPIED TO CLIPBOARD!</span>
+    </div>
+
+    <!-- Web Audio API Minecraft Button Click Sound & Logic -->
+    <script>
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        // Initialize Web Audio Context for synthesized Minecraft UI click sound
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    audioCtx = new AudioContext();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        // Synthesize authentic Minecraft UI button click sound using Web Audio API
+        function playMcClickSound() {
+            if (!soundEnabled) return;
+            
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+
+                // Create noise buffer for woody click punch
+                const bufferSize = ctx.sampleRate * 0.04; // 40ms noise burst
+                const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+
+                const whiteNoise = ctx.createBufferSource();
+                whiteNoise.buffer = noiseBuffer;
+
+                // Filter for wooden click timbre
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 800; // Pitch center
+                filter.Q.value = 3.0;
+
+                // Envelope
+                const gainNode = ctx.createGain();
+                gainNode.gain.setValueAtTime(0.8, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.035);
+
+                whiteNoise.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(ctx.destination);
+
+                whiteNoise.start();
+            } catch (e) {
+                console.error("Audio play error:", e);
+            }
+        }
+
+        // Toggle Sound ON/OFF
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const soundIcon = document.getElementById('soundIcon');
+            const soundText = document.getElementById('soundText');
+
+            if (soundEnabled) {
+                soundIcon.className = "fa-solid fa-volume-high text-yellow-400";
+                soundText.textContent = "SOUND: ON";
+                playMcClickSound();
+            } else {
+                soundIcon.className = "fa-solid fa-volume-xmark text-red-400";
+                soundText.textContent = "SOUND: OFF";
+            }
+        }
+
+        // Link click handling with sound & deep link redirect
+        function handleLinkClick(event, type, target) {
+            playMcClickSound();
+
+            if (type === 'telegram') {
+                event.preventDefault();
+                const webUrl = `https://t.me/${target}`;
+                const deepLinkUrl = `tg://resolve?domain=${target}`;
+
+                // Attempt to launch Telegram app directly
+                window.location.href = deepLinkUrl;
+
+                // Web fallback
+                setTimeout(() => {
+                    window.open(webUrl, '_blank');
+                }, 400);
+            } else if (type === 'discord') {
+                // Let browser handle opening discord link after short delay for sound
+                event.preventDefault();
+                const discordUrl = `https://discord.gg/${target}`;
+                setTimeout(() => {
+                    window.open(discordUrl, '_blank');
+                }, 150);
+            }
+        }
+
+        // Copy Page URL Link
+        function copyLink(event) {
+            playMcClickSound();
+            const pageUrl = window.location.href;
+            
+            const tempInput = document.createElement('input');
+            tempInput.value = pageUrl;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast("LINK COPIED TO CLIPBOARD!");
+            } catch (err) {
+                showToast("FAILED TO COPY!");
+            }
+            
+            document.body.removeChild(tempInput);
+        }
+
+        // Display Toast Notification
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastText').textContent = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
+```
